@@ -1,0 +1,80 @@
+# Student Attendance Management System
+
+A complete Student Attendance Management System built with Python using Tkinter/CustomTkinter, SQLite, Matplotlib, Pandas, and OpenPyXL.
+
+## Features
+
+- Secure login with role-based access for Admin and Teacher
+- Modern desktop UI using CustomTkinter
+- Student registration, update, delete, and search
+- Daily attendance marking for Present, Absent, Late, and Excused
+- Dashboard summarizing attendance metrics
+- Attendance reports by date, class, and student
+- Excel and CSV export support
+- SQLite database with transaction-safe updates
+- Password hashing using PBKDF2-SHA256
+
+## Project Structure
+
+```text
+student-attendance-system/
+├── main.py
+├── requirements.txt
+├── README.md
+├── assets/
+│   └── .gitkeep
+├── exports/
+│   └── .gitkeep
+├── data/
+│   └── attendance_system.db
+├── student_attendance/
+│   ├── __init__.py
+│   ├── auth.py
+│   ├── attendance.py
+│   ├── dashboard.py
+│   ├── database.py
+│   ├── reports.py
+│   └── students.py
+└── .gitignore
+```
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+## Default Login
+
+- Username: admin
+- Password: Admin@123
+
+The first time you log in, the system will prompt you to change the default password.
+
+## Database
+
+The application automatically creates the SQLite database and required tables when it starts for the first time.
+
+- Database file: `data/attendance_system.db`
+- Tables: `users`, `classes`, `students`, `attendance`
+
+## Usage Notes
+
+- Admins can manage all student and attendance records.
+- Teachers can mark attendance for their assigned classes.
+- Reports can be exported to CSV or Excel files.
+- The system prevents duplicate attendance entries for the same student on the same date.
+
+## Troubleshooting
+
+- If the app doesn't start, ensure all dependencies are installed:
+  ```bash
+  pip install -r requirements.txt
+  ```
+- If the database file is missing, delete the `data/attendance_system.db` file and restart the app; it will be recreated automatically.
+- If the GUI appears blank, make sure your display environment supports Tkinter.
+
+## License
+
+This project is for educational and demo purposes.

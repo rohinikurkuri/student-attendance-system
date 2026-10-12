@@ -1,0 +1,115 @@
+import customtkinter
+from tkinter import messagebox
+
+from student_attendance.auth import LoginFrame, PasswordChangeDialog
+from student_attendance.dashboard import DashboardView
+from student_attendance.database import DatabaseManager
+from student_attendance.students import StudentsView
+from student_attendance.attendance import AttendanceView
+from student_attendance.reports import ReportsView
+
+
+class AttendanceManagementApp(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        customtkinter.set_appearance_mode("Light")
+        customtkinter.set_default_color_theme("blue")
+
+        self.database = DatabaseManager()
+        self.current_user = None
+        self.main_container = None
+        self.sidebar = None
+        self.content_area = None
+
+        self.title("Student Attendance Management System")
+        self.geometry("1450x900")
+        self.minsize(1200, 760)
+
+        self.show_login_screen()
+
+    def show_login_screen(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        self.main_container = customtkinter.CTkFrame(self, fg_color="#EAF2FF")
+        self.main_container.pack(fill="both", expand=True)
+
+        login_panel = LoginFrame(self.main_container, self.database, self.handle_login)
+        login_panel.place(relx=0.5, rely=0.5, anchor="center", width=460, height=420)
+
+    def handle_login(self, user):
+        self.current_user = user
+        if user.get("force_password_change"):
+            dialog = PasswordChangeDialog(self, self.database, user["username"])
+            dialog.transient(self)
+            dialog.grab_set()
+            dialog.wait_window()
+        self.build_main_ui()
+
+    def build_main_ui(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        self.sidebar = customtkinter.CTkFrame(self, width=260, corner_radius=0, fg_color="#0F172A")
+        self.sidebar.pack(fill="y", side="left")
+
+        brand = customtkinter.CTkLabel(self.sidebar, text="SchoolPilot", font=customtkinter.CTkFont(size=28, weight="bold"), text_color="#FFFFFF")
+        brand.pack(padx=20, pady=(30, 20), anchor="w")
+
+        subtitle = customtkient = customtkinter.CTkLabel(self.sidebar, text=f"{self.current_user['role']} | {self.current_user['full_name']}", text_color="#CBD5E1", font=customtkinter.CTkFont(size=12))
+        subtitle.pack(anchor="w", padx=20, pady=(0, 20))
+
+        nav_items = [
+            ("Dashboard", "dashboard"),
+            ("Students", "students"),
+            ("Attendance", "attendance"),
+            ("Reports", "reports"),
+            ("Logout", "logout"),
+        ]
+
+        for label, key in nav_items:
+            btn = customtkinter.CTkButton(
+                self.sidebar,
+                text=label,
+                width=220,
+                height=42,
+                fg_color="#1E293B" if key != "logout" else "#7F1D1D",
+                hover_color="#334155" if key != "logout" else "#991B1B",
+                corner_radius=10,
+                command=lambda k=key: self.navigate(k),
+            )
+            btn.pack(padx=18, pady=8, fill="x")
+
+        self.content_area = customtkinter.CTkFrame(self, fg_color="#F8FAFC")
+        self.content_area.pack(fill="both", expand=True, side="right")
+
+        self.navigate("dashboard")
+
+    def navigate(self, view_name):
+        if not self.content_area:
+            return
+
+        for child in self.content_area.winfo_children():
+            child.destroy()
+
+        if view_name == "dashboard":
+            view = DashboardView(self.content_area, self.database)
+            view.pack(fill="both", expand=True, padx=12, pady=12)
+        elif view_name == "students":
+            view = StudentsView(self.content_area, self.database)
+            view.pack(fill="both", expand=True, padx=12, pady=12)
+        elif view_name == "attendance":
+            view = AttendanceView(self.content_area, self.database)
+            view.pack(fill="both", expand=True, padx=12, pady=12)
+        elif view_name == "reports":
+            view = ReportsView(self.content_area, self.database)
+            view.pack(fill="both", expand=True, padx=12, pady=12)
+        elif view_name == "logout":
+            self.current_user = None
+            self.show_login_screen()
+            messagebox.showinfo("Logged Out", "You have been logged out successfully.")
+
+
+if __name__ == "__main__":
+    app = AttendanceManagementApp()
+    app.mainloop()
